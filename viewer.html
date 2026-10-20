@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cloudzer — Viewer</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #10131a;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    main {
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 { color: #7c9cff; }
+    video {
+      width: 100%;
+      background: black;
+      border-radius: 12px;
+      margin: 12px 0;
+    }
+    textarea {
+      width: 100%;
+      min-height: 130px;
+      box-sizing: border-box;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 8px;
+      background: #202634;
+      color: white;
+      border: 1px solid #46516a;
+    }
+    button {
+      padding: 12px;
+      margin: 4px 0;
+      border: 0;
+      border-radius: 8px;
+      background: #7c9cff;
+      font-weight: bold;
+    }
+    #status { color: #c0c9db; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Cloudzer Viewer</h1>
+  <p>Apne Sender phone se mila offer yahan paste karo.</p>
+
+  <label for="offer">Sender offer (SDP)</label>
+  <textarea id="offer" placeholder="Paste sender offer here"></textarea>
+  <button id="answerBtn">Create Answer</button>
+
+  <p id="status">Waiting for sender offer.</p>
+
+  <label for="answer">Viewer answer (SDP)</label>
+  <textarea id="answer" readonly placeholder="Your answer appears here"></textarea>
+  <button id="copyBtn">Copy Answer</button>
+
+  <video id="remoteVideo" autoplay playsinline controls></video>
+</main>
+
+<script>
+  const offerBox = document.getElementById("offer");
+  const answerBox = document.getElementById("answer");
+  const status = document.getElementById("status");
+  const remoteVideo = document.getElementById("remoteVideo");
+
+  let pc = null;
+
+  function waitForIce(pc) {
+    return new Promise((resolve) => {
+      if (pc.iceGatheringState === "complete") {
+        resolve();
+        return;
+      }
+
+      pc.addEventListener("icegatheringstatechange", () => {
+        if (pc.iceGatheringState === "complete") resolve();
+      });
+
+      setTimeout(resolve, 12000);
+    });
+  }
+
+  document.getElementById("answerBtn").onclick = async () => {
+    try {
+      const offerText = offerBox.value.trim();
+      if (!offerText) {
+        status.textContent = "Paste the sender offer first.";
+        return;
+      }
+
+      const offer = JSON.parse(offerText);
+      if (offer.type !== "offer" || !offer.sdp) {
+        throw new Error("This does not look like a valid offer.");
+      }
+
+      pc?.close();
+      pc = new RTCPeerConnection({
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" }
+        ]
+      });
+
+      pc.ontrack = (event) => {
+        remoteVideo.srcObject = event.streams[0];
+        status.textContent = "Remote video track received.";
+      };
+
+      pc.onconnectionstatechange = () => {
+        status.textContent =
+          "Connection: " + pc.connectionState;
+      };
+
+      await pc.setRemoteDescription(offer);
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      status.textContent = "Preparing connection details...";
+      await waitForIce(pc);
+
+      answerBox.value = JSON.stringify(pc.localDescription);
+      status.textContent =
+        "Answer created. Copy it back to the sender phone.";
+    } catch (error) {
+      status.textContent = "Error: " + error.message;
+    }
+  };
+
+  document.getElementById("copyBtn").onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(answerBox.value);
+      status.textContent = "Answer copied.";
+    } catch {
+      answerBox.focus();
+      answerBox.select();
+      status.textContent = "Select and copy the answer manually.";
+    }
+  };
+
+  window.addEventListener("pagehide", () => pc?.close());
+</script>
+</body>
+</html>
