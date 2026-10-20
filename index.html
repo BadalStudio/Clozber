@@ -1,143 +1,65 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Camera Project</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 24px 16px;
-      background: #10131a;
-      color: #ffffff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
-
-    main {
-      max-width: 500px;
-      margin: auto;
-    }
-
-    h1 {
-      color: #7c9cff;
-    }
-
-    video {
-      width: 100%;
-      background: #000;
-      border-radius: 14px;
-      margin: 16px 0;
-    }
-
-    button {
-      padding: 13px 18px;
-      margin: 5px;
-      border: 0;
-      border-radius: 9px;
-      font-size: 15px;
-      font-weight: bold;
-    }
-
-    #startBtn {
-      background: #7c9cff;
-      color: #10131a;
-    }
-
-    #stopBtn {
-      background: #ff6b6b;
-      color: #ffffff;
-    }
-
-    #status {
-      color: #b9c4d8;
-      overflow-wrap: anywhere;
-    }
-
-    .note {
-      color: #aab3c5;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-  </style>
-</head>
-
-<body>
-  <main>
-    <h1>Live Camera</h1>
-    <p>Step 1: Test your camera</p>
-
-    <video id="video" autoplay playsinline muted></video>
-
-    <p id="status">Camera is stopped.</p>
-
-    <button id="startBtn">Start Camera</button>
-    <button id="stopBtn">Stop Camera</button>
-
-    <p class="note">
-      Camera access requires your permission.
-      This demo previews video on this device only.
-      It does not send video to another phone.
-    </p>
-  </main>
-
-  <script>
-    const video = document.getElementById("video");
-    const status = document.getElementById("status");
-    const startBtn = document.getElementById("startBtn");
-    const stopBtn = document.getElementById("stopBtn");
-
-    let stream = null;
-
-    startBtn.addEventListener("click", async () => {
-      if (stream) return;
-
-      if (!navigator.mediaDevices?.getUserMedia) {
-        status.textContent =
-          "Camera unavailable. Open this page over HTTPS.";
-        return;
-      }
-
-      try {
-        status.textContent = "Requesting camera permission...";
-
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-          audio: false
-        });
-
-        video.srcObject = stream;
-        await video.play();
-
-        status.textContent = "Camera is ON — local preview only.";
-      } catch (error) {
-        stream?.getTracks().forEach(track => track.stop());
-        stream = null;
-        status.textContent =
-          "Camera could not start: " + error.message;
-      }
-    });
-
-    stopBtn.addEventListener("click", () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
-      }
-
-      video.srcObject = null;
-      status.textContent = "Camera is stopped.";
-    });
-
-    window.addEventListener("pagehide", () => {
-      stream?.getTracks().forEach(track => track.stop());
-    });
-  </script>
-</body>
-  </html>
-  
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080b14"><title>Cloudzer — Camera Sharing</title>
+<style>
+:root{color-scheme:dark;--bg:#080b14;--panel:#111827;--line:#263247;--muted:#9ba9c2;--text:#f4f7ff;--blue:#7c9cff;--green:#53e0b0;--red:#ff7885}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#17213d 0,transparent 48%),var(--bg);color:var(--text);font:16px/1.5 system-ui,sans-serif;min-height:100vh}.wrap{max-width:960px;margin:auto;padding:24px 16px 56px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:34px}.brand{font-size:1.25rem;font-weight:850;letter-spacing:.08em}.brand span{color:var(--blue)}.pill{border:1px solid var(--line);border-radius:99px;padding:6px 10px;color:var(--muted);font-size:.8rem}.hero{text-align:center;max-width:700px;margin:auto}.eyebrow{color:var(--green);text-transform:uppercase;letter-spacing:.15em;font-size:.75rem;font-weight:800}.hero h1{font-size:clamp(2.4rem,8vw,4.5rem);line-height:1.03;letter-spacing:-.05em;margin:14px 0}.hero p,.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:28px}.card{background:linear-gradient(180deg,#141d2e,#0f1522);border:1px solid var(--line);border-radius:22px;padding:22px;min-width:0}.card h2{margin:0 0 6px;font-size:1.2rem}.card p{color:var(--muted)}.icon{width:44px;height:44px;border-radius:14px;background:#202c48;display:grid;place-items:center;font-size:1.3rem;margin-bottom:14px}button,input{font:inherit}button{border:0;border-radius:12px;padding:12px 15px;font-weight:750;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.primary{background:var(--blue);color:#071024}.secondary{background:#202b40;color:var(--text);border:1px solid #33415b}.danger{background:#4b202c;color:#ffdfe3;border:1px solid #753342}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.status{border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-top:14px;color:var(--muted);font-size:.9rem;overflow-wrap:anywhere}.status.good{border-color:#23644f;color:#b7ffe5}.status.bad{border-color:#743340;color:#ffc4ca}.field{display:flex;gap:8px;margin-top:14px}.field input,.name{min-width:0;width:100%;background:#090e19;border:1px solid #34425a;border-radius:11px;padding:12px;color:var(--text);margin-top:8px}.field input{flex:1}.video{width:100%;aspect-ratio:16/10;object-fit:cover;background:#05070c;border:1px solid var(--line);border-radius:15px;margin-top:16px}.video[hidden],[hidden]{display:none!important}.notice{background:#171b29;border:1px solid #3b3f53;border-radius:14px;padding:14px;color:#d7def0;margin-top:20px}.section{margin-top:18px}.small{font-size:.85rem}.foot{text-align:center;color:var(--muted);font-size:.82rem;margin-top:24px}@media(max-width:700px){.grid{grid-template-columns:1fr}.card{padding:18px}}
+</style></head>
+<body><main class="wrap">
+<header class="top"><div class="brand">CLOUD<span>ZER</span></div><div class="pill">🔒 Consent-first</div></header>
+<section class="hero"><div class="eyebrow">Private by design</div><h1>Camera sharing.<br><span style="color:var(--blue)">Your choice.</span></h1><p>Send a camera request. The receiver sees who is asking and must explicitly accept before choosing to share.</p></section>
+<div class="notice"><strong>Camera stays off by default.</strong> A request never turns on the camera. The receiver must accept, press Start Sharing, and grant browser permission. They can stop at any time.</div>
+<section class="grid">
+<article class="card" id="requestCard"><div class="icon">↗</div><h2>Request a camera</h2><p>Create a short-lived request link and send it to the intended person.</p>
+<label for="requesterName">Your display name</label><input class="name" id="requesterName" maxlength="40" placeholder="e.g. Badal">
+<div class="actions"><button class="primary" id="createBtn">Create request link</button><button class="secondary" id="copyBtn" disabled>Copy link</button></div><div class="field"><input id="inviteLink" readonly placeholder="Your request link appears here"></div><div class="status" id="requestStatus" role="status">Not connected.</div><video id="remoteVideo" class="video" autoplay playsinline hidden></video></article>
+<article class="card" id="receiverCard"><div class="icon">◉</div><h2>Respond to a request</h2><p>Open a request link on this device. Check the requester before accepting.</p>
+<label for="receiverName">Your display name</label><input class="name" id="receiverName" maxlength="40" placeholder="e.g. Camera owner">
+<div class="status" id="receiverStatus" role="status">No request received.</div>
+<div class="actions" id="consentActions" hidden><button class="primary" id="acceptBtn">Accept request</button><button class="danger" id="declineBtn">Decline</button></div>
+<div class="actions" id="shareActions" hidden><button class="primary" id="startBtn">Start Sharing</button><button class="danger" id="stopBtn">Stop Sharing</button></div>
+<video id="localVideo" class="video" autoplay muted playsinline hidden></video><div class="status" id="cameraStatus" role="status">Camera is off.</div></article>
+</section>
+<section class="card section"><h2>Session status</h2><div class="status" id="connectionStatus" role="status">Connecting to signaling service…</div><p class="muted small">Invitation links expire after 10 minutes and are single-receiver. Display names are self-declared, not verified identities. Only share with people you know and trust.</p></section>
+<footer class="foot">Cloudzer prototype · No background camera access · No automatic reconnect</footer></main>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const socket=io({transports:["websocket","polling"]});
+const params=new URLSearchParams(location.search);
+let sessionId=params.get("session"), role=params.get("role"), pc=null, stream=null, accepted=false, stopped=false, requesterSecret=null, offerMade=false;
+const iceServers=[{urls:"stun:stun.l.google.com:19302"}];
+function status(id,msg,kind=""){const el=$(id);el.textContent=msg;el.className="status "+kind}
+function nameOf(id){return $(id).value.trim().slice(0,40)||"Cloudzer user"}
+function closeMedia(){if(pc){pc.ontrack=null;pc.onicecandidate=null;pc.close();pc=null}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}$("localVideo").srcObject=null;$("localVideo").hidden=true;$("remoteVideo").srcObject=null;$("remoteVideo").hidden=true;$("startBtn").disabled=false}
+function stopSession(msg="Session stopped. Camera is off."){stopped=true;closeMedia();$("shareActions").hidden=true;$("consentActions").hidden=true;status("cameraStatus","Camera is off.");status("connectionStatus",msg);status("requestStatus",msg);status("receiverStatus",msg)}
+function relaySignal(data){if(sessionId&&!stopped)socket.emit("signal",{id:sessionId,data})}
+async function setupPeer(isRequester){
+ pc=new RTCPeerConnection({iceServers});
+ pc.onicecandidate=e=>{if(e.candidate)relaySignal({candidate:e.candidate})};
+ pc.ontrack=e=>{if(isRequester){$("remoteVideo").srcObject=e.streams[0];$("remoteVideo").hidden=false;status("requestStatus","Live camera connected. The receiver can stop sharing at any time.","good")}};
+ pc.onconnectionstatechange=()=>{if(pc&&["failed","disconnected","closed"].includes(pc.connectionState)){status("connectionStatus","Connection "+pc.connectionState+". Stop and create a new request if needed.","bad")}};
+ return pc;
+}
+socket.on("connect",()=>status("connectionStatus","Connected to signaling server."));
+socket.on("connect_error",()=>status("connectionStatus","Could not connect to server. Refresh and try again.","bad"));
+$("createBtn").onclick=()=>{if(!socket.connected){status("requestStatus","Wait for the signaling connection, then retry.","bad");return}
+$("createBtn").disabled=true;socket.emit("create-request",{name:nameOf("requesterName")},r=>{if(!r?.ok){status("requestStatus",r?.error||"Could not create request.","bad");$("createBtn").disabled=false;return}
+sessionId=r.id;requesterSecret=r.secret;$("inviteLink").value=r.url;$("copyBtn").disabled=false;history.replaceState({}, "", location.pathname);status("requestStatus","Request created. Send the link to the intended person and wait for their approval.","good");status("connectionStatus","Request expires in about 10 minutes. Waiting for receiver.");});};
+$("copyBtn").onclick=async()=>{try{await navigator.clipboard.writeText($("inviteLink").value);status("requestStatus","Link copied. Send it only to the intended person.","good")}catch{$("inviteLink").select();status("requestStatus","Select and copy the link manually.")}};
+if(role==="receiver"&&sessionId){$("consentActions").hidden=true;socket.on("connect",()=>{socket.emit("join-request",{id:sessionId,name:nameOf("receiverName")},r=>{if(!r?.ok){status("receiverStatus",r?.error||"Could not join request.","bad");return}status("receiverStatus","Request link verified by server. Waiting for request details…")})})}
+socket.on("consent-request",d=>{accepted=false;$("consentActions").hidden=false;status("receiverStatus",`${d.requesterName} is requesting a live camera session. Accept only if you trust this person. Request expires soon.`,"good")});
+socket.on("receiver-arrived",d=>status("requestStatus",`${d.name} opened the link. Waiting for their explicit decision.`,"good"));
+$("acceptBtn").onclick=()=>{socket.emit("consent-response",{id:sessionId,accepted:true},r=>{if(!r?.ok){status("receiverStatus",r?.error||"Could not accept.","bad");return}accepted=true;$("consentActions").hidden=true;$("shareActions").hidden=false;status("receiverStatus","You accepted. Camera remains OFF until you press Start Sharing.","good");status("cameraStatus","Camera is off. Press Start Sharing only when ready.")})};
+$("declineBtn").onclick=()=>{socket.emit("consent-response",{id:sessionId,accepted:false},()=>{});$("consentActions").hidden=true;status("receiverStatus","Request declined. Camera remains off.","bad");history.replaceState({},"",location.pathname)};
+socket.on("request-accepted",async d=>{status("requestStatus",`${d.receiverName} accepted. Waiting for them to start sharing.`,"good")});
+socket.on("request-declined",()=>stopSession("Request declined."));
+socket.on("media-ready",async()=>{try{await setupPeer(true);const offer=await pc.createOffer();await pc.setLocalDescription(offer);relaySignal({description:pc.localDescription});offerMade=true;status("requestStatus","Connecting to approved camera session…")}catch(e){status("requestStatus","Could not start connection: "+e.message,"bad")}});
+$("startBtn").onclick=async()=>{if(!accepted||stopped)return;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false});$("localVideo").srcObject=stream;$("localVideo").hidden=false;$("startBtn").disabled=true;await setupPeer(false);stream.getTracks().forEach(t=>pc.addTrack(t,stream));socket.emit("media-ready",{id:sessionId},r=>{if(!r?.ok){status("cameraStatus",r?.error||"Session authorization failed.","bad");closeMedia();return}status("cameraStatus","Sharing active with the approved requester. Use Stop Sharing at any time.","good");status("connectionStatus","Camera owner approved the session and browser permission.")})}catch(e){status("cameraStatus",e.name==="NotAllowedError"?"Camera permission denied. Nothing is being shared.":"Could not start camera: "+e.message,"bad");$("startBtn").disabled=false}};
+$("stopBtn").onclick=()=>{if(sessionId)socket.emit("stop-session",{id:sessionId});stopSession("You stopped sharing. Session ended.")};
+socket.on("signal",async data=>{try{if(!pc)return;if(data.description){await pc.setRemoteDescription(data.description);if(data.description.type==="offer"){const answer=await pc.createAnswer();await pc.setLocalDescription(answer);relaySignal({description:pc.localDescription})}}else if(data.candidate){await pc.addIceCandidate(data.candidate)}}catch(e){status("connectionStatus","Connection negotiation failed. Please start a new request.","bad")}});
+socket.on("session-stopped",()=>stopSession("The other device ended the session. Camera is off."));
+window.addEventListener("pagehide",()=>{if(stream)stream.getTracks().forEach(t=>t.stop());if(sessionId)socket.emit("stop-session",{id:sessionId})});
+</script></body></html>
